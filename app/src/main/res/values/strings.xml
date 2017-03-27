@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Bitcoin_App_Android</string>
+    <string name="content">Валюта: курс</string>
+    <string name="set_currency_button">Выбрать валюту</string>
+    <string name="update_button">Обновить курс</string>
+    <string name="rub">RUB</string>
+    <string name="usd">USD</string>
+</resources>
