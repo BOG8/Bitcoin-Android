@@ -25,10 +25,9 @@ class BitcoinProcessor {
     private final static String API_KEY = "bB1STBE07gmsher1aYwtxLImohDdp1chYfTjsnhstGRxYB9osC";
     private final static String METHOD_URL = "https://community-bitcointy.p.mashape.com/average/";
 
-    static boolean processCurrency(final Context context, String currentCategory) {
+    static boolean processCurrency(final Context context, String currentCurrency) {
         Log.i(LOG_TAG, "processCurrency (Making server request)");
-        Storage storage = Storage.getInstance(null);
-        String currentCurrency = storage.loadString(CURRENT_CURRENCY);
+        Storage storage = Storage.getInstance(context);
         try {
             final String uri = Uri.parse(METHOD_URL + currentCurrency)
                     .buildUpon()
