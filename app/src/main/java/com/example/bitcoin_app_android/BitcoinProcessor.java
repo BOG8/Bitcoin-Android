@@ -14,8 +14,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static com.example.bitcoin_app_android.Storage.CURRENT_CURRENCY;
-
 /**
  * Created by Олег on 27.03.2017.
  */
@@ -25,9 +23,10 @@ class BitcoinProcessor {
     private final static String API_KEY = "bB1STBE07gmsher1aYwtxLImohDdp1chYfTjsnhstGRxYB9osC";
     private final static String METHOD_URL = "https://community-bitcointy.p.mashape.com/average/";
 
-    static boolean processCurrency(final Context context, String currentCurrency) {
+    static boolean processCurrency(final Context context, String currentCurrency) throws IOException {
         Log.i(LOG_TAG, "processCurrency (Making server request)");
         Storage storage = Storage.getInstance(context);
+        InputStream is = null;
         try {
             final String uri = Uri.parse(METHOD_URL + currentCurrency)
                     .buildUpon()
@@ -43,17 +42,19 @@ class BitcoinProcessor {
             conn.setRequestProperty("Accept", "text/plain");
             conn.connect();
             int responseCode = conn.getResponseCode();
-
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 Log.i(LOG_TAG, "HTTP_OK");
-                InputStream inputStream = conn.getInputStream();
-                Currency result = inputStreamToCurrency(inputStream);
+                is = conn.getInputStream();
+                Currency result = inputStreamToCurrency(is);
                 storage.saveString(result.currency, result.value.toString());
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Log.i(LOG_TAG, ex.getMessage());
             return false;
+        } finally {
+            if (is != null) {
+                is.close();
+            }
         }
         Log.i(LOG_TAG, "processCurrency ends without errors");
         return true;
