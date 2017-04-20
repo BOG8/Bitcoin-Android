@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -13,10 +14,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static com.example.bitcoin_app_android.Storage.CURRENT_CURRENCY;
-
 public class MainActivity extends AppCompatActivity {
     private final static String LOG_TAG = MainActivity.class.getSimpleName();
+    public final static String BITCOIN = "Bitcoin";
+    public final static String CURRENT_CURRENCY = "Current_currency";
 
     static {
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    private Storage storage;
+    private SharedPreferences preferences;
     private TextView contentTextView;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        storage = Storage.getInstance(this);
+        preferences = getSharedPreferences(BITCOIN, 0);
 
         contentTextView = (TextView) findViewById(R.id.content_text_view);
         findViewById(R.id.currency_choice_button).setOnClickListener(onCurrencyChooseClick);
@@ -55,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.i(LOG_TAG, "onResume");
-        String currentCurrency = storage.loadString(CURRENT_CURRENCY);
-        String result = "Bitcoin = " + storage.loadString(currentCurrency) + " " + currentCurrency;
+        String currentCurrency = preferences.getString(CURRENT_CURRENCY, null);
+        String result = "Bitcoin = " + preferences.getString(currentCurrency, null) + " " + currentCurrency;
         contentTextView.setText(result);
         initBroadcastReceiver(this);
     }
@@ -86,15 +87,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void update() {
         Log.i(LOG_TAG, "update");
-        String currencyName = storage.loadString(CURRENT_CURRENCY);
+        String currencyName = preferences.getString(CURRENT_CURRENCY, null);
         ServiceHelper.getInstance().getCurrency(this, currencyName);
     }
 
     public void onNewsResult(boolean success) {
         Log.i(LOG_TAG, "onNewsResult");
         if (success) {
-            String currentCurrency = storage.loadString(CURRENT_CURRENCY);
-            String result = "Bitcoin = " + storage.loadString(currentCurrency) + " " + currentCurrency;
+            String currentCurrency = preferences.getString(CURRENT_CURRENCY, null);
+            String result = "Bitcoin = " + preferences.getString(currentCurrency, null) + " " + currentCurrency;
             contentTextView.setText(result);
             Toast.makeText(this, "Data was downloaded", Toast.LENGTH_SHORT).show();
         } else {

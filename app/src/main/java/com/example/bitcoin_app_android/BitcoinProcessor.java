@@ -1,6 +1,7 @@
 package com.example.bitcoin_app_android;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
 
@@ -14,6 +15,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import static com.example.bitcoin_app_android.MainActivity.BITCOIN;
+
 /**
  * Created by Олег on 27.03.2017.
  */
@@ -25,7 +28,7 @@ class BitcoinProcessor {
 
     static boolean processCurrency(final Context context, String currentCurrency) throws IOException {
         Log.i(LOG_TAG, "processCurrency (Making server request)");
-        Storage storage = Storage.getInstance(context);
+        SharedPreferences preferences = context.getSharedPreferences(BITCOIN, 0);
         InputStream is = null;
         try {
             final String uri = Uri.parse(METHOD_URL + currentCurrency)
@@ -46,7 +49,7 @@ class BitcoinProcessor {
                 Log.i(LOG_TAG, "HTTP_OK");
                 is = conn.getInputStream();
                 Currency result = inputStreamToCurrency(is);
-                storage.saveString(result.currency, result.value.toString());
+                preferences.edit().putString(result.currency, result.value.toString()).apply();
             }
         } catch (Exception ex) {
             Log.i(LOG_TAG, ex.getMessage());
